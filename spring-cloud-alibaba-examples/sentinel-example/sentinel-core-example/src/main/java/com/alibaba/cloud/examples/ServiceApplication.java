@@ -26,6 +26,12 @@ public class ServiceApplication {
 	}
 
 	@Bean
+	@SentinelRestTemplate(fallbackFactory = TestRestTemplateFallbackFactory.class)
+	public RestTemplate restTemplateFallback() {
+		return new RestTemplate();
+	}
+
+	@Bean
 	public Converter myConverter() {
 		return new JsonFlowRuleListConverter();
 	}

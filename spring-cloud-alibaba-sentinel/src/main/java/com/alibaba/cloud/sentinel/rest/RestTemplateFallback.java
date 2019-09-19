@@ -14,38 +14,29 @@
  * limitations under the License.
  */
 
-package com.alibaba.cloud.sentinel.annotation;
+package com.alibaba.cloud.sentinel.rest;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
+
 /**
- * @author fangjian
+ * Annotation to mark a RestTemplate bean to be configured to use a fallback factory
+ * @author zkz
  */
-@Target({ ElementType.METHOD })
+@Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface SentinelRestTemplate {
+@Inherited
+@Qualifier
+@Component
+public @interface RestTemplateFallback {
 
-	@Deprecated
-	String blockHandler() default "";
-
-	@Deprecated
-	Class<?> blockHandlerClass() default void.class;
-
-	@Deprecated
-	String fallback() default "";
-
-	@Deprecated
-	Class<?> fallbackClass() default void.class;
-
-	String urlCleaner() default "";
-
-	Class<?> urlCleanerClass() default void.class;
-
-	Class<?> fallbackFactory() default void.class;
-
+    String prefix() default "";
 }

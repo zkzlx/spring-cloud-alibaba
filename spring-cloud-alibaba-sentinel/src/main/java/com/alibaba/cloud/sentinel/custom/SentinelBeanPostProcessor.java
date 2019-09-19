@@ -29,6 +29,7 @@ import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.support.MergedBeanDefinitionPostProcessor;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.context.ApplicationContext;
+import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.core.type.MethodMetadata;
 import org.springframework.core.type.StandardMethodMetadata;
 import org.springframework.http.HttpRequest;
@@ -40,6 +41,8 @@ import org.springframework.web.client.RestTemplate;
 
 import com.alibaba.cloud.sentinel.SentinelConstants;
 import com.alibaba.cloud.sentinel.annotation.SentinelRestTemplate;
+import com.alibaba.cloud.sentinel.rest.RestTemplateFallback;
+import com.alibaba.cloud.sentinel.rest.RestTemplateFallbackFactory;
 import com.alibaba.csp.sentinel.slots.block.BlockException;
 
 /**
@@ -82,6 +85,8 @@ public class SentinelBeanPostProcessor implements MergedBeanDefinitionPostProces
 		}
 	}
 
+
+
 	private void checkSentinelRestTemplate(SentinelRestTemplate sentinelRestTemplate,
 			String beanName) {
 		checkBlock4RestTemplate(sentinelRestTemplate.blockHandlerClass(),
@@ -93,6 +98,8 @@ public class SentinelBeanPostProcessor implements MergedBeanDefinitionPostProces
 		checkBlock4RestTemplate(sentinelRestTemplate.urlCleanerClass(),
 				sentinelRestTemplate.urlCleaner(), beanName,
 				SentinelConstants.URLCLEANER_TYPE);
+		// check for fallbackFactory {@link RestTemplateFallbackFactory}
+		checkFallbackFactory(sentinelRestTemplate, beanName);
 	}
 
 	private void checkBlock4RestTemplate(Class<?> blockClass, String blockMethod,
@@ -127,7 +134,8 @@ public class SentinelBeanPostProcessor implements MergedBeanDefinitionPostProces
 		Method foundMethod = ClassUtils.getStaticMethod(blockClass, blockMethod, args);
 		if (foundMethod == null) {
 			log.error(
-					"{} static method can not be found in bean[{}]. The right method signature is {}#{}{}, please check your class name, method name and arguments",
+					"{} static method can not be found in bean[{}]. The right method signature is {}#{}{}"
+							+ ", please check your class name, method name and arguments",
 					type, beanName, blockClass.getName(), blockMethod, argsStr);
 			throw new IllegalArgumentException(type
 					+ " static method can not be found in bean[" + beanName
@@ -199,6 +207,7 @@ public class SentinelBeanPostProcessor implements MergedBeanDefinitionPostProces
 			registerBean(interceptorBeanName, sentinelRestTemplate, (RestTemplate) bean);
 			SentinelProtectInterceptor sentinelProtectInterceptor = applicationContext
 					.getBean(interceptorBeanName, SentinelProtectInterceptor.class);
+			sentinelProtectInterceptor.setContext(applicationContext);
 			restTemplate.getInterceptors().add(0, sentinelProtectInterceptor);
 		}
 		return bean;
@@ -217,6 +226,34 @@ public class SentinelBeanPostProcessor implements MergedBeanDefinitionPostProces
 				.getRawBeanDefinition();
 		beanFactory.registerBeanDefinition(interceptorBeanName,
 				interceptorBeanDefinition);
+	}
+
+
+	private void checkFallbackFactory(SentinelRestTemplate sentinelRestTemplate,
+									  String beanName) {
+		Class<?> factoryClass = sentinelRestTemplate.fallbackFactory();
+		if (factoryClass == void.class) {
+			return;
+		}
+		if (!RestTemplateFallbackFactory.class.isAssignableFrom(factoryClass)) {
+			String msg = String.format(
+					"The [%s] must either inherit from [AbstractRestTemplateFallbackFactory.class]"
+							+ " or implement [RestTemplateFallbackFactory.class]",
+					factoryClass.getSimpleName());
+			log.error(msg);
+			throw new IllegalArgumentException(msg);
+		}
+		if (!AnnotatedElementUtils.hasAnnotation(factoryClass,
+				RestTemplateFallback.class)) {
+			String msg = String.format(
+					"The [%s] must be a valid spring bean and needs to be marked with @RestTemplateFallback",
+					factoryClass.getSimpleName());
+			log.error(msg);
+			throw new IllegalArgumentException(msg);
+		}
+		RestTemplateFallbackFactory fallbackIns = (RestTemplateFallbackFactory) this.applicationContext
+				.getBean(factoryClass, RestTemplateFallbackFactory.class);
+		Method[] methods = fallbackIns.getClass().getMethods();
 	}
 
 }

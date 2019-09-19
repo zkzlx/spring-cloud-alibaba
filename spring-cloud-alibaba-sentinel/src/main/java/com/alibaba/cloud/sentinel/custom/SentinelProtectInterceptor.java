@@ -21,6 +21,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URI;
 
+import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
@@ -28,6 +29,7 @@ import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.web.client.RestTemplate;
 
 import com.alibaba.cloud.sentinel.annotation.SentinelRestTemplate;
+import com.alibaba.cloud.sentinel.rest.RestTemplateFallbackFactory;
 import com.alibaba.cloud.sentinel.rest.SentinelClientHttpResponse;
 import com.alibaba.csp.sentinel.Entry;
 import com.alibaba.csp.sentinel.EntryType;
@@ -47,10 +49,17 @@ public class SentinelProtectInterceptor implements ClientHttpRequestInterceptor 
 
 	private final RestTemplate restTemplate;
 
+	private ApplicationContext applicationContext;
+
 	public SentinelProtectInterceptor(SentinelRestTemplate sentinelRestTemplate,
 			RestTemplate restTemplate) {
 		this.sentinelRestTemplate = sentinelRestTemplate;
 		this.restTemplate = restTemplate;
+	}
+
+	public SentinelProtectInterceptor setContext(ApplicationContext applicationContext) {
+		this.applicationContext = applicationContext;
+		return this;
 	}
 
 	@Override
@@ -107,6 +116,12 @@ public class SentinelProtectInterceptor implements ClientHttpRequestInterceptor 
 
 	private ClientHttpResponse handleBlockException(HttpRequest request, byte[] body,
 			ClientHttpRequestExecution execution, BlockException ex) {
+		Class<?> factoryClass = this.sentinelRestTemplate.fallbackFactory();
+		if (factoryClass != void.class) {
+			RestTemplateFallbackFactory fallbackIns = (RestTemplateFallbackFactory) this.applicationContext
+					.getBean(factoryClass, RestTemplateFallbackFactory.class);
+			return fallbackIns.degrade(request, body, execution, ex);
+		}
 		Object[] args = new Object[] { request, body, execution, ex };
 		// handle degrade
 		if (isDegradeFailure(ex)) {

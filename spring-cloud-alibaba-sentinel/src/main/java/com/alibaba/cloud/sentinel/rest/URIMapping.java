@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.alibaba.cloud.sentinel.annotation;
+package com.alibaba.cloud.sentinel.rest;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -23,29 +23,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * @author fangjian
+ * Mapping the specified uri to the method
+ * @author zkz
  */
 @Target({ ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface SentinelRestTemplate {
-
-	@Deprecated
-	String blockHandler() default "";
-
-	@Deprecated
-	Class<?> blockHandlerClass() default void.class;
-
-	@Deprecated
-	String fallback() default "";
-
-	@Deprecated
-	Class<?> fallbackClass() default void.class;
-
-	String urlCleaner() default "";
-
-	Class<?> urlCleanerClass() default void.class;
-
-	Class<?> fallbackFactory() default void.class;
-
+public @interface URIMapping {
+    String[] value();
 }
