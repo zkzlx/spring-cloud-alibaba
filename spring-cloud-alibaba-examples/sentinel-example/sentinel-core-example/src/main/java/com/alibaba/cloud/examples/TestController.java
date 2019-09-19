@@ -40,14 +40,19 @@ public class TestController {
 		return restTemplate.getForObject("http://www.taobao.com/test", String.class);
 	}
 
-	@GetMapping(value = "/fallback1")
-	public String fallback1() {
-		return restTemplateFallback.getForObject("http://www.taobao.com/test", String.class);
+	@GetMapping(value = "/fbk1")
+	public String fallbackTest1() {
+		return restTemplateFallback.getForObject("http://www.taobao.com/test/fbk1", String.class);
 	}
 
-	@GetMapping(value = "/fallback2")
-	public String fallback2() {
-		return restTemplateFallback.getForObject("http://www.taobao.com/test", String.class);
+	@GetMapping(value = "/fbk2")
+	public String fallbackTest2() {
+		return restTemplateFallback.getForObject("http://www.taobao.com/testFbk2", String.class);
+	}
+
+	@GetMapping(value = "/fbk3")
+	public String fallbackTest3() {
+		return restTemplateFallback.getForObject("http://www.taobao.com/testFbk3", String.class);
 	}
 
 }

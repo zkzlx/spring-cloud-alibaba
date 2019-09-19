@@ -6,6 +6,7 @@ import org.springframework.http.client.ClientHttpRequestExecution;
 import com.alibaba.cloud.sentinel.rest.RestTemplateFallback;
 import com.alibaba.cloud.sentinel.rest.RestTemplateFallbackFactory;
 import com.alibaba.cloud.sentinel.rest.SentinelClientHttpResponse;
+import com.alibaba.cloud.sentinel.rest.URIMapping;
 import com.alibaba.csp.sentinel.slots.block.BlockException;
 
 /**
@@ -14,14 +15,22 @@ import com.alibaba.csp.sentinel.slots.block.BlockException;
  * @author zkz
  */
 @RestTemplateFallback
-public class TestRestTemplateFallbackFactory implements RestTemplateFallbackFactory {
-    @Override
-    public SentinelClientHttpResponse throttle(HttpRequest request, byte[] body, ClientHttpRequestExecution execution, BlockException ex) {
-        return new SentinelClientHttpResponse("com.alibaba.cloud.examples.TestRestTemplateFallbackFactory.throttle");
+public class TestRestTemplateFallbackFactory extends RestTemplateFallbackFactory {
+
+    public SentinelClientHttpResponse testFbk1(HttpRequest request, byte[] body,
+                                               ClientHttpRequestExecution execution, BlockException ex){
+        return new SentinelClientHttpResponse("oh，testFbk1,my god!");
     }
 
-    @Override
-    public SentinelClientHttpResponse degrade(HttpRequest request, byte[] body, ClientHttpRequestExecution execution, BlockException ex) {
-        return new SentinelClientHttpResponse("com.alibaba.cloud.examples.TestRestTemplateFallbackFactory.degrade");
+    public SentinelClientHttpResponse testFbk2(HttpRequest request, byte[] body,
+                                               ClientHttpRequestExecution execution, BlockException ex){
+        return new SentinelClientHttpResponse("oh，testFbk2,my god!");
     }
+    @URIMapping({"testFbk3"})
+    public SentinelClientHttpResponse test(HttpRequest request, byte[] body,
+                                                ClientHttpRequestExecution execution, BlockException ex){
+        return new SentinelClientHttpResponse("oh,my god!");
+    }
+
+
 }

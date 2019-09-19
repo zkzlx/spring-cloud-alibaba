@@ -120,7 +120,7 @@ public class SentinelProtectInterceptor implements ClientHttpRequestInterceptor 
 		if (factoryClass != void.class) {
 			RestTemplateFallbackFactory fallbackIns = (RestTemplateFallbackFactory) this.applicationContext
 					.getBean(factoryClass, RestTemplateFallbackFactory.class);
-			return fallbackIns.degrade(request, body, execution, ex);
+			return fallbackIns.fallback(request, body, execution, ex);
 		}
 		Object[] args = new Object[] { request, body, execution, ex };
 		// handle degrade

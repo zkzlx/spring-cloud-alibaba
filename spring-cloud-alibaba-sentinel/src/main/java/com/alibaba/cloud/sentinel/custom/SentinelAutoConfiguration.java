@@ -16,11 +16,13 @@
 
 package com.alibaba.cloud.sentinel.custom;
 
+import com.alibaba.cloud.sentinel.rest.RestTemplateFallbackBeanPostProcessor;
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -149,6 +151,12 @@ public class SentinelAutoConfiguration {
 	public SentinelBeanPostProcessor sentinelBeanPostProcessor(
 			ApplicationContext applicationContext) {
 		return new SentinelBeanPostProcessor(applicationContext);
+	}
+	@Bean
+	@ConditionalOnBean(SentinelBeanPostProcessor.class)
+	public RestTemplateFallbackBeanPostProcessor restTemplateFallbackBeanPostProcessor(
+			ApplicationContext applicationContext) {
+		return new RestTemplateFallbackBeanPostProcessor();
 	}
 
 	@Bean

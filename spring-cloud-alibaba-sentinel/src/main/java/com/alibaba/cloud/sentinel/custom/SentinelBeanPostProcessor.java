@@ -251,9 +251,7 @@ public class SentinelBeanPostProcessor implements MergedBeanDefinitionPostProces
 			log.error(msg);
 			throw new IllegalArgumentException(msg);
 		}
-		RestTemplateFallbackFactory fallbackIns = (RestTemplateFallbackFactory) this.applicationContext
-				.getBean(factoryClass, RestTemplateFallbackFactory.class);
-		Method[] methods = fallbackIns.getClass().getMethods();
+
 	}
 
 }
