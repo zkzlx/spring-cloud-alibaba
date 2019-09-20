@@ -23,12 +23,19 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Mapping the specified uri to the method
+ * Mapping the specified uri to the method, it must be combined with
+ * {@link RestTemplateFallback}
+ *
  * @author zkz
  */
 @Target({ ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface URIMapping {
-    String[] value();
+
+	/**
+	 * Multiple uris can be configured,The uri is the request uri in the restTemplate.
+     * its prefix can use this {@link RestTemplateFallback#prefix()}
+	 */
+	String[] value();
 }

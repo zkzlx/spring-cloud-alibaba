@@ -16,11 +16,8 @@
 
 package com.alibaba.cloud.sentinel.rest;
 
-import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -28,12 +25,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
-import org.springframework.core.annotation.AnnotatedElementUtils;
+import org.springframework.context.ApplicationContext;
 import org.springframework.core.annotation.AnnotationUtils;
-import org.springframework.util.StringUtils;
-
-import com.alibaba.cloud.sentinel.annotation.SentinelRestTemplate;
-import com.alibaba.cloud.sentinel.custom.SentinelBeanPostProcessor;
 
 /**
  * TODO Describe what it does
@@ -44,18 +37,14 @@ public class RestTemplateFallbackBeanPostProcessor implements BeanPostProcessor 
 	private static final Logger log = LoggerFactory
 			.getLogger(RestTemplateFallbackBeanPostProcessor.class);
 
-	private static Pattern humpPattern = Pattern.compile("[A-Z]");
-	private static String SPLIT = "/";
 
-	static String humpToUri(String str) {
-		Matcher matcher = humpPattern.matcher(str);
-		StringBuffer sb = new StringBuffer();
-		while (matcher.find()) {
-			matcher.appendReplacement(sb, SPLIT + matcher.group(0).toLowerCase());
-		}
-		matcher.appendTail(sb);
-		return sb.toString();
+
+	private final ApplicationContext applicationContext;
+
+	public RestTemplateFallbackBeanPostProcessor(ApplicationContext applicationContext) {
+		this.applicationContext = applicationContext;
 	}
+
 
 	@Override
 	public Object postProcessAfterInitialization(Object bean, String beanName)
@@ -78,44 +67,13 @@ public class RestTemplateFallbackBeanPostProcessor implements BeanPostProcessor 
 					.filter(item -> item.getDeclaringClass() != Object.class)
 					.collect(Collectors.toList());
 			for (Method method : methodList) {
-				if (!SentinelClientHttpResponse.class
-						.isAssignableFrom(method.getReturnType())) {
-					continue;
-				}
-				URIMapping mapping = AnnotationUtils.getAnnotation(method,
-						URIMapping.class);
-				if (mapping == null || null == mapping.value()
-						|| mapping.value().length < 1) {
-					factory.addMethodUriMapping(
-							joinPartialUri(prefix, humpToUri(method.getName())), method);
-				}
-				else {
-					this.addUriMapping(factory, method, prefix, mapping.value());
-				}
+				factory.addMethodUriMapping(prefix,method);
 			}
 		}
 		return bean;
 	}
 
-	private void addUriMapping(RestTemplateFallbackFactory factory, Method method,
-			String prefix, String[] suffixAry) {
-		if (null == suffixAry || suffixAry.length < 1) {
-			return;
-		}
-		for (String suffix : suffixAry) {
-			if (StringUtils.isEmpty(suffix)) {
-				continue;
-			}
-			factory.addMethodUriMapping(joinPartialUri(prefix, suffix), method);
-		}
-	}
 
-	private static String joinPartialUri(String prefix, String suffix) {
-		prefix = StringUtils.isEmpty(prefix) ? SPLIT : prefix.trim();
-		prefix = prefix.startsWith(SPLIT) ? prefix : SPLIT + prefix;
-		suffix = StringUtils.isEmpty(suffix) ? SPLIT : suffix.trim();
-		suffix = suffix.startsWith(SPLIT) ? suffix : SPLIT + suffix;
-		return (prefix + suffix).replaceAll("//", SPLIT);
-	}
+
 
 }

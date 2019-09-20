@@ -54,5 +54,9 @@ public class TestController {
 	public String fallbackTest3() {
 		return restTemplateFallback.getForObject("http://www.taobao.com/testFbk3", String.class);
 	}
+	@GetMapping(value = "/fbk4")
+	public String fallbackTest4() {
+		return restTemplateFallback.getForObject("http://www.taobao.com/testFbk4", String.class);
+	}
 
 }

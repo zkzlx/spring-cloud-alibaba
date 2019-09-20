@@ -16,7 +16,6 @@
 
 package com.alibaba.cloud.sentinel.custom;
 
-import com.alibaba.cloud.sentinel.rest.RestTemplateFallbackBeanPostProcessor;
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +35,7 @@ import org.springframework.util.StringUtils;
 import com.alibaba.cloud.sentinel.SentinelProperties;
 import com.alibaba.cloud.sentinel.datasource.converter.JsonConverter;
 import com.alibaba.cloud.sentinel.datasource.converter.XmlConverter;
+import com.alibaba.cloud.sentinel.rest.RestTemplateFallbackBeanPostProcessor;
 import com.alibaba.csp.sentinel.adapter.servlet.config.WebServletConfig;
 import com.alibaba.csp.sentinel.annotation.aspectj.SentinelResourceAspect;
 import com.alibaba.csp.sentinel.config.SentinelConfig;
@@ -48,7 +48,6 @@ import com.alibaba.csp.sentinel.slots.block.flow.param.ParamFlowRule;
 import com.alibaba.csp.sentinel.slots.system.SystemRule;
 import com.alibaba.csp.sentinel.transport.config.TransportConfig;
 import com.alibaba.csp.sentinel.util.AppNameUtil;
-
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
@@ -156,7 +155,7 @@ public class SentinelAutoConfiguration {
 	@ConditionalOnBean(SentinelBeanPostProcessor.class)
 	public RestTemplateFallbackBeanPostProcessor restTemplateFallbackBeanPostProcessor(
 			ApplicationContext applicationContext) {
-		return new RestTemplateFallbackBeanPostProcessor();
+		return new RestTemplateFallbackBeanPostProcessor(applicationContext);
 	}
 
 	@Bean

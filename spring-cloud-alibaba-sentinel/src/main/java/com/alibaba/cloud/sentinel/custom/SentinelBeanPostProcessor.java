@@ -85,8 +85,6 @@ public class SentinelBeanPostProcessor implements MergedBeanDefinitionPostProces
 		}
 	}
 
-
-
 	private void checkSentinelRestTemplate(SentinelRestTemplate sentinelRestTemplate,
 			String beanName) {
 		checkBlock4RestTemplate(sentinelRestTemplate.blockHandlerClass(),
@@ -228,17 +226,15 @@ public class SentinelBeanPostProcessor implements MergedBeanDefinitionPostProces
 				interceptorBeanDefinition);
 	}
 
-
 	private void checkFallbackFactory(SentinelRestTemplate sentinelRestTemplate,
-									  String beanName) {
+			String beanName) {
 		Class<?> factoryClass = sentinelRestTemplate.fallbackFactory();
 		if (factoryClass == void.class) {
 			return;
 		}
 		if (!RestTemplateFallbackFactory.class.isAssignableFrom(factoryClass)) {
 			String msg = String.format(
-					"The [%s] must either inherit from [AbstractRestTemplateFallbackFactory.class]"
-							+ " or implement [RestTemplateFallbackFactory.class]",
+					"The [%s] must be inherit from [RestTemplateFallbackFactory.class]",
 					factoryClass.getSimpleName());
 			log.error(msg);
 			throw new IllegalArgumentException(msg);

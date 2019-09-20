@@ -17,11 +17,8 @@
 package com.alibaba.cloud.sentinel.rest;
 
 import java.lang.reflect.Method;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.springframework.http.HttpRequest;
 import org.springframework.http.client.ClientHttpRequestExecution;
@@ -36,8 +33,6 @@ import com.alibaba.csp.sentinel.slots.block.degrade.DegradeException;
  */
 public abstract class AbstractFallbackFactory {
 
-	private Class[] args = new Class[] { HttpRequest.class, byte[].class,
-			ClientHttpRequestExecution.class, BlockException.class };
 	private ConcurrentHashMap<String, Method> mappingCache = new ConcurrentHashMap<>(16);
 
 	/**
@@ -71,7 +66,7 @@ public abstract class AbstractFallbackFactory {
 	}
 
 
-	void addMethodUriMapping(String uri,Method method){
+	final void putMethodUriMapping(String uri,Method method){
 		if(StringUtils.isEmpty(uri) || method ==null){
 			return;
 		}

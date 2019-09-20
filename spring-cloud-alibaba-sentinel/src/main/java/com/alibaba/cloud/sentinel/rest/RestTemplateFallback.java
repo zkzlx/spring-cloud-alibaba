@@ -24,11 +24,22 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.Conditional;
+import org.springframework.http.HttpRequest;
+import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.stereotype.Component;
 
+import com.alibaba.csp.sentinel.slots.block.BlockException;
+
 /**
- * Annotation to mark a RestTemplate bean to be configured to use a fallback factory
+ * Annotation to mark a RestTemplate bean to be configured to use a fallback factory.
+ * {@link URIMapping} can be used for the uri mapping of its internal methods. If the
+ * method does not use {@link URIMapping}, its mapping uri is converted based on the
+ * method's hump. If the mapping uri is not found by either uri or methods, the default
+ * methods is invoked in
+ * {@link RestTemplateFallbackFactory#fallback(HttpRequest, byte[], ClientHttpRequestExecution, BlockException)}.
+ * sample:
+ * //todo
+ *
  * @author zkz
  */
 @Target(ElementType.TYPE)
@@ -39,5 +50,8 @@ import org.springframework.stereotype.Component;
 @Component
 public @interface RestTemplateFallback {
 
-    String prefix() default "";
+	/**
+	 * prefix of uri.Provide prefix support for internal methods or {@link URIMapping}
+	 */
+	String prefix() default "";
 }
