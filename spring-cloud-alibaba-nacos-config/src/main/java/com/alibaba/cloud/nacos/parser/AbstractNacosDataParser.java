@@ -63,30 +63,33 @@ public abstract class AbstractNacosDataParser {
 	 * Parsing nacos configuration content.
 	 * @param data config data from Nacos
 	 * @param extension file extension. json or xml or yml or yaml or properties
+	 * @param encode encode for data
 	 * @return result of Properties
 	 * @throws IOException thrown if there is a problem parsing config.
 	 */
-	public final Properties parseNacosData(String data, String extension)
-			throws IOException {
+	public final Map<String, Object> parseNacosData(String data, String extension,
+			String encode) throws IOException {
 		if (extension == null || extension.length() < 1) {
 			throw new IllegalStateException("The file extension cannot be empty");
 		}
 		if (this.isLegal(extension.toLowerCase())) {
-			return this.doParse(data);
+			return this.doParse(data, encode);
 		}
 		if (this.nextParser == null) {
 			throw new IllegalStateException(getTips(extension));
 		}
-		return this.nextParser.parseNacosData(data, extension);
+		return this.nextParser.parseNacosData(data, extension, encode);
 	}
 
 	/**
 	 * Core logic for parsing.
 	 * @param data config from Nacos
+	 * @param encode encode for data
 	 * @return result of Properties
 	 * @throws IOException thrown if there is a problem parsing config.
 	 */
-	protected abstract Properties doParse(String data) throws IOException;
+	protected abstract Map<String, Object> doParse(String data, String encode)
+			throws IOException;
 
 	protected AbstractNacosDataParser setNextParser(AbstractNacosDataParser nextParser) {
 		this.nextParser = nextParser;
@@ -130,12 +133,12 @@ public abstract class AbstractNacosDataParser {
 	/**
 	 * Reload the key ending in `value` if need.
 	 */
-	protected Map<String, String> reloadMap(Map<String, String> map) {
+	protected Map<String, Object> reloadMap(Map<String, Object> map) {
 		if (map == null || map.isEmpty()) {
 			return null;
 		}
-		Map<String, String> result = new HashMap<>(map);
-		for (Map.Entry<String, String> entry : map.entrySet()) {
+		Map<String, Object> result = new HashMap<>(map);
+		for (Map.Entry<String, Object> entry : map.entrySet()) {
 			String key = entry.getKey();
 			if (key.contains(DOT)) {
 				int idx = key.lastIndexOf(DOT);

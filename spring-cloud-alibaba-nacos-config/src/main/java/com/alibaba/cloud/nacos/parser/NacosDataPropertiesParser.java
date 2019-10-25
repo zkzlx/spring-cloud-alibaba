@@ -17,8 +17,14 @@
 package com.alibaba.cloud.nacos.parser;
 
 import java.io.IOException;
-import java.io.StringReader;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Properties;
+
+import org.springframework.core.CollectionFactory;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.support.EncodedResource;
+import org.springframework.core.io.support.PropertiesLoaderUtils;
 
 /**
  * @author zkz
@@ -30,10 +36,13 @@ public class NacosDataPropertiesParser extends AbstractNacosDataParser {
 	}
 
 	@Override
-	protected Properties doParse(String data) throws IOException {
-		Properties properties = new Properties();
-		properties.load(new StringReader(data));
-		return properties;
+	protected Map<String, Object> doParse(String data, String encode) throws IOException {
+		Properties properties = CollectionFactory.createStringAdaptingProperties();
+		PropertiesLoaderUtils.fillProperties(properties, new EncodedResource(
+				new ByteArrayResource(data.getBytes(encode)), encode));
+		Map<String, Object> map = new LinkedHashMap<>(32);
+		properties.forEach((key, value) -> map.put(key.toString(), value));
+		return map;
 	}
 
 }

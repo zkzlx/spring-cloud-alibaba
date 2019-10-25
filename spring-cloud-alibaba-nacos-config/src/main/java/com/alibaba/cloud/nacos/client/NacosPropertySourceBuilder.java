@@ -16,6 +16,7 @@
 
 package com.alibaba.cloud.nacos.client;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -40,31 +41,15 @@ public class NacosPropertySourceBuilder {
 	private static final Logger log = LoggerFactory
 			.getLogger(NacosPropertySourceBuilder.class);
 
-	private static final Properties EMPTY_PROPERTIES = new Properties();
-
 	private ConfigService configService;
 
 	private long timeout;
 
+	private String encode;
+
 	public NacosPropertySourceBuilder(ConfigService configService, long timeout) {
 		this.configService = configService;
 		this.timeout = timeout;
-	}
-
-	public long getTimeout() {
-		return timeout;
-	}
-
-	public void setTimeout(long timeout) {
-		this.timeout = timeout;
-	}
-
-	public ConfigService getConfigService() {
-		return configService;
-	}
-
-	public void setConfigService(ConfigService configService) {
-		this.configService = configService;
 	}
 
 	/**
@@ -73,14 +58,15 @@ public class NacosPropertySourceBuilder {
 	 */
 	NacosPropertySource build(String dataId, String group, String fileExtension,
 			boolean isRefreshable) {
-		Properties p = loadNacosData(dataId, group, fileExtension);
+		Map<String, Object> objectMap = loadNacosData(dataId, group, fileExtension);
 		NacosPropertySource nacosPropertySource = new NacosPropertySource(group, dataId,
-				propertiesToMap(p), new Date(), isRefreshable);
+				objectMap, new Date(), isRefreshable);
 		NacosPropertySourceRepository.collectNacosPropertySources(nacosPropertySource);
 		return nacosPropertySource;
 	}
 
-	private Properties loadNacosData(String dataId, String group, String fileExtension) {
+	private Map<String, Object> loadNacosData(String dataId, String group,
+			String fileExtension) {
 		String data = null;
 		try {
 			data = configService.getConfig(dataId, group, timeout);
@@ -88,15 +74,15 @@ public class NacosPropertySourceBuilder {
 				log.warn(
 						"Ignore the empty nacos configuration and get it based on dataId[{}] & group[{}]",
 						dataId, group);
-				return EMPTY_PROPERTIES;
+				return Collections.emptyMap();
 			}
 			log.info(String.format(
 					"Loading nacos data, dataId: '%s', group: '%s', data: %s", dataId,
 					group, data));
 
-			Properties properties = NacosDataParserHandler.getInstance()
-					.parseNacosData(data, fileExtension);
-			return properties == null ? EMPTY_PROPERTIES : properties;
+			Map<String, Object> objectMap = NacosDataParserHandler.getInstance()
+					.parseNacosData(data, fileExtension, getEncode());
+			return objectMap == null ? Collections.emptyMap() : objectMap;
 		}
 		catch (NacosException e) {
 			log.error("get data from Nacos error,dataId:{}, ", dataId, e);
@@ -104,7 +90,7 @@ public class NacosPropertySourceBuilder {
 		catch (Exception e) {
 			log.error("parse data from Nacos error,dataId:{},data:{},", dataId, data, e);
 		}
-		return EMPTY_PROPERTIES;
+		return Collections.emptyMap();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -122,6 +108,14 @@ public class NacosPropertySourceBuilder {
 			}
 		}
 		return result;
+	}
+
+	public String getEncode() {
+		return encode;
+	}
+
+	public void setEncode(String encode) {
+		this.encode = encode;
 	}
 
 }

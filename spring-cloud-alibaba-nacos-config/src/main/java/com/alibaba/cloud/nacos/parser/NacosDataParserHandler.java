@@ -17,7 +17,9 @@
 package com.alibaba.cloud.nacos.parser;
 
 import java.io.IOException;
-import java.util.Properties;
+import java.util.Map;
+
+import org.springframework.util.StringUtils;
 
 /**
  * @author zkz
@@ -25,6 +27,8 @@ import java.util.Properties;
 public final class NacosDataParserHandler {
 
 	private AbstractNacosDataParser parser;
+
+	private static final String DEFAULT_ENCODE = "UTF-8";
 
 	private NacosDataParserHandler() {
 		parser = this.createParser();
@@ -34,14 +38,17 @@ public final class NacosDataParserHandler {
 	 * Parsing nacos configuration content.
 	 * @param data config from Nacos
 	 * @param extension file extension. json or xml or yml or yaml or properties
+	 * @param encode encode for data
 	 * @return result of properties
 	 * @throws IOException thrown if there is a problem parsing config.
 	 */
-	public Properties parseNacosData(String data, String extension) throws IOException {
+	public Map<String, Object> parseNacosData(String data, String extension,
+			String encode) throws IOException {
 		if (null == parser) {
 			parser = this.createParser();
 		}
-		return parser.parseNacosData(data, extension);
+		return parser.parseNacosData(data, extension,
+				StringUtils.hasText(encode) ? DEFAULT_ENCODE : encode);
 	}
 
 	/**
@@ -80,9 +87,7 @@ public final class NacosDataParserHandler {
 	}
 
 	private static class ParserHandler {
-
 		private static final NacosDataParserHandler HANDLER = new NacosDataParserHandler();
-
 	}
 
 }
