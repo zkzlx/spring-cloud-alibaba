@@ -37,9 +37,14 @@ public class NacosDataPropertiesParser extends AbstractNacosDataParser {
 
 	@Override
 	protected Map<String, Object> doParse(String data, String encode) throws IOException {
+		// Construct a new Properties instance, after 5.2 version is sorted Properties .
+		// @see ${link org.springframework.core.SortedProperties }
 		Properties properties = CollectionFactory.createStringAdaptingProperties();
 		PropertiesLoaderUtils.fillProperties(properties, new EncodedResource(
 				new ByteArrayResource(data.getBytes(encode)), encode));
+		if(properties.isEmpty()){
+			return null;
+		}
 		Map<String, Object> map = new LinkedHashMap<>(32);
 		properties.forEach((key, value) -> map.put(key.toString(), value));
 		return map;

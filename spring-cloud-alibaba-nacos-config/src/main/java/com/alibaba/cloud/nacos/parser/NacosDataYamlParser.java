@@ -40,8 +40,6 @@ public class NacosDataYamlParser extends AbstractNacosDataParser {
 
 	@Override
 	protected Map<String, Object> doParse(String data, String encode) throws IOException {
-		// YamlPropertiesFactoryBean yamlFactory = new YamlPropertiesFactoryBean();
-
 		YamlListMapFactoryBean yamlFactory = new YamlListMapFactoryBean();
 		yamlFactory.setResources(new ByteArrayResource(data.getBytes(encode)));
 		return yamlFactory.getFlattenedMap();
@@ -53,6 +51,8 @@ public class NacosDataYamlParser extends AbstractNacosDataParser {
 
 		private Properties getProperties() {
 			if (null == properties) {
+                // Construct a new Properties instance, after 5.2 version is sorted Properties .
+                // @see ${link org.springframework.core.SortedProperties }
 				properties = CollectionFactory.createStringAdaptingProperties();
 				properties.putAll(this.getFlattenedMap());
 			}
@@ -73,7 +73,7 @@ public class NacosDataYamlParser extends AbstractNacosDataParser {
 				@Nullable String path) {
 			source.forEach((key, value) -> {
 				if (StringUtils.hasText(path)) {
-					key = path + '.' + key;
+					key = path + DOT + key;
 				}
 				if (value instanceof String || value instanceof Collection) {
 					result.put(key, value);

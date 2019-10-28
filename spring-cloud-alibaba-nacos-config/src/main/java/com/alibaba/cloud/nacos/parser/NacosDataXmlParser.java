@@ -48,15 +48,14 @@ public class NacosDataXmlParser extends AbstractNacosDataParser {
 		if (StringUtils.isEmpty(data)) {
 			return null;
 		}
-		Map<String, Object> map = parseXml2Map(data);
-		// return this.generateProperties(this.reloadMap(map));
-		return map;
+		return parseXml2Map(data);
 	}
 
 	private Map<String, Object> parseXml2Map(String xml) throws IOException {
 		xml = xml.replaceAll("\\r", "").replaceAll("\\n", "").replaceAll("\\t", "");
-		Map<String, Object> map = new HashMap<>(32);
+
 		try {
+			Map<String, Object> map = new HashMap<>(32);
 			DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance()
 					.newDocumentBuilder();
 			Document document = documentBuilder
@@ -65,11 +64,11 @@ public class NacosDataXmlParser extends AbstractNacosDataParser {
 				return null;
 			}
 			parseNodeList(document.getChildNodes(), map, "");
+			return map;
 		}
 		catch (Exception e) {
 			throw new IOException("The xml content parse error.", e.getCause());
 		}
-		return map;
 	}
 
 	private void parseNodeList(NodeList nodeList, Map<String, Object> map,
@@ -88,7 +87,6 @@ public class NacosDataXmlParser extends AbstractNacosDataParser {
 			if (StringUtils.isEmpty(name)) {
 				continue;
 			}
-
 			String key = StringUtils.isEmpty(parentKey) ? name : parentKey + DOT + name;
 			NamedNodeMap nodeMap = node.getAttributes();
 			parseNodeAttr(nodeMap, map, key);

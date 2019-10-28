@@ -39,10 +39,7 @@ public class NacosDataJsonParser extends AbstractNacosDataParser {
 		if (StringUtils.isEmpty(data)) {
 			return null;
 		}
-
-		Map<String, Object> map = parseJSON2Map(data);
-		return map;
-		// return this.generateProperties(this.reloadMap(map));
+		return parseJson2Map(data);
 	}
 
 	/**
@@ -51,13 +48,13 @@ public class NacosDataJsonParser extends AbstractNacosDataParser {
 	 * @return the map convert by json string
 	 * @throws IOException thrown if there is a problem parsing config.
 	 */
-	public static Map<String, Object> parseJSON2Map(String json) throws IOException {
-		Map<String, Object> map = new LinkedHashMap<>(32);
+	private static Map<String, Object> parseJson2Map(String json) throws IOException {
 		ObjectMapper mapper = new ObjectMapper();
 		JsonNode jsonNode = mapper.readTree(json);
 		if (null == jsonNode) {
-			return map;
+			return null;
 		}
+		Map<String, Object> map = new LinkedHashMap<>(32);
 		parseJsonNode(map, jsonNode, "");
 		return map;
 	}

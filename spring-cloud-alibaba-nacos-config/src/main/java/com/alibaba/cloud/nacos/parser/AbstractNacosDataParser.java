@@ -17,11 +17,13 @@
 package com.alibaba.cloud.nacos.parser;
 
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
 
 import com.alibaba.nacos.client.utils.StringUtils;
+
+import org.springframework.core.CollectionFactory;
 
 /**
  * @author zkz
@@ -91,11 +93,6 @@ public abstract class AbstractNacosDataParser {
 	protected abstract Map<String, Object> doParse(String data, String encode)
 			throws IOException;
 
-	protected AbstractNacosDataParser setNextParser(AbstractNacosDataParser nextParser) {
-		this.nextParser = nextParser;
-		return this;
-	}
-
 	public AbstractNacosDataParser addNextParser(AbstractNacosDataParser nextParser) {
 		if (this.nextParser == null) {
 			this.nextParser = nextParser;
@@ -118,7 +115,7 @@ public abstract class AbstractNacosDataParser {
 		if (null == map || map.isEmpty()) {
 			return null;
 		}
-		Properties properties = new Properties();
+		Properties properties = CollectionFactory.createStringAdaptingProperties();
 		for (Map.Entry<String, String> entry : map.entrySet()) {
 			String key = entry.getKey();
 			if (StringUtils.isBlank(key)) {
@@ -137,7 +134,7 @@ public abstract class AbstractNacosDataParser {
 		if (map == null || map.isEmpty()) {
 			return null;
 		}
-		Map<String, Object> result = new HashMap<>(map);
+		Map<String, Object> result = new LinkedHashMap<>(map);
 		for (Map.Entry<String, Object> entry : map.entrySet()) {
 			String key = entry.getKey();
 			if (key.contains(DOT)) {

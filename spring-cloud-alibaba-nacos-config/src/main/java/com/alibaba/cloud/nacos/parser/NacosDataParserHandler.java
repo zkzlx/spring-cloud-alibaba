@@ -48,7 +48,7 @@ public final class NacosDataParserHandler {
 			parser = this.createParser();
 		}
 		return parser.parseNacosData(data, extension,
-				StringUtils.hasText(encode) ? DEFAULT_ENCODE : encode);
+				StringUtils.hasText(encode) ? encode : DEFAULT_ENCODE);
 	}
 
 	/**

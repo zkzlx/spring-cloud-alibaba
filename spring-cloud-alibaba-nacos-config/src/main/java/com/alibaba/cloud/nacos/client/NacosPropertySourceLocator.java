@@ -16,7 +16,6 @@
 
 package com.alibaba.cloud.nacos.client;
 
-import java.io.IOException;
 import java.util.List;
 
 import com.alibaba.cloud.nacos.NacosConfigManager;
@@ -25,6 +24,7 @@ import com.alibaba.cloud.nacos.NacosPropertySourceRepository;
 import com.alibaba.cloud.nacos.parser.NacosDataParserHandler;
 import com.alibaba.cloud.nacos.refresh.NacosContextRefresher;
 import com.alibaba.nacos.api.config.ConfigService;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,37 +66,7 @@ public class NacosPropertySourceLocator implements PropertySourceLocator {
 
 	@Override
 	public PropertySource<?> locate(Environment env) {
-
-		String data = "\n" + "alibaba:\n" + "  acm:\n"
-				+ "    accessKey: LTAI7CzcDfOTWiqY\n"
-				+ "    secretKey: thrf990bRyvi32vYUNqNl2TTEVd6ie\n"
-				+ "    endpoint: acm.aliyun.com\n"
-				+ "    namespace: 76fd3b5d-90bf-43f4-a9f7-15227c5c5558\n"
-				+ "    regionId: cn-shanghai\n" + "\n" + "\n" + "logging:\n"
-				+ "  level:\n" + "    com.yiguo.winchain: debug\n" + "\n" + "mybatis:\n"
-				+ "  configuration:\n"
-				+ "    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl\n"
-				+ "    test-key:\n" + "      - abc\n" + "      - erst\n"
-				+ "      - adfsdfsd\n" + "\n" + "spring:\n" + "  datasource:\n"
-				+ "    minIdle: 1\n" + "    testOnBorrow: true\n"
-				+ "    initialSize: 10\n" + "    maxWait: 60000\n"
-				+ "    url: jdbc:mysql://rm-2zev9z103c9x9g434.mysql.rds.aliyuncs.com:3306/auslese_dev?useSSL=false\n"
-				+ "    maxActive: 60\n" + "    username: ygtest\n"
-				+ "    password: ygtest\n" + "  zipkin:\n"
-				+ "    base-url: http://172.17.78.37:9411\n" + "  jpa:\n"
-				+ "    show-sql: true\n" + "\n" + "feign:\n" + "  hystrix:\n"
-				+ "    enabled: true\n" + "  client:\n" + "    config:\n"
-				+ "      default:\n" + "        connectTimeout: 80000\n"
-				+ "        readTimeout: 80000\n";
-		try {
-			NacosDataParserHandler.getInstance().parseNacosData(data, "yml",
-					nacosConfigProperties.getEncode());
-		}
-		catch (IOException e) {
-		}
-
 		ConfigService configService = nacosConfigManager.getConfigService();
-
 		if (null == configService) {
 			log.warn("no instance of config service found, can't load config from nacos");
 			return null;
